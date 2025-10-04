@@ -1,0 +1,95 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useRouter } from "next/navigation";
+import api from "@/lib/api";
+import { useOrganizationStore } from "../../components/organization/useOrganizationStore";
+import { CompanySelect } from "../../components/organization/CompanySelect";
+import { Organization } from "@/lib/types";
+
+export const OrganizationCard = () => {
+  const { selectedCompany } = useOrganizationStore();
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [loading, setLoading] = useState(false);
+  const { push } = useRouter();
+  const token = localStorage.getItem("token");
+  const handleContinue = async () => {
+    if (!selectedCompany) return;
+    setLoading(true);
+    try {
+      const res = await api.post(
+        "/auth/organization/set-active",
+        { organizationId: selectedCompany },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(res);
+      push("/dashboard");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchOrganizations = async () => {
+      try {
+        const res = await api.get("/auth/organization/list", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setOrganizations(res.data);
+      } catch (err) {
+        console.error("Gagal mengambil daftar organisasi:", err);
+      }
+    };
+    fetchOrganizations();
+  }, [token]);
+
+  return (
+    <>
+      <Card className="py-7">
+        <CardHeader>
+          <CardTitle>Pilih Perusahaan</CardTitle>
+          <CardDescription>
+            Silakan pilih perusahaan yang ingin Anda akses
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          <CompanySelect organizations={organizations} />
+        </CardContent>
+
+        <CardFooter className="flex justify-between gap-2">
+          <Button variant="outline" className="cursor-pointer">
+            Buat Perusahaan Baru
+          </Button>
+          <Button
+            className="cursor-pointer"
+            disabled={!selectedCompany || loading}
+            onClick={handleContinue}
+          >
+            {loading ? "Loading..." : "Lanjutkan"}
+          </Button>
+        </CardFooter>
+      </Card>
+
+      <p className="text-sm text-center text-gray-500 mt-4">
+        Tidak menemukan perusahaan Anda? Hubungi dukungan kami
+      </p>
+    </>
+  );
+};
