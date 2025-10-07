@@ -1,26 +1,35 @@
+"use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SquareArrowOutUpRight } from "lucide-react";
 import { ShoppingBag } from "lucide-react";
+import { useEffect, useState } from "react";
+import { generateDateRangeQuery } from "./GenerateDateRange";
+import api from "@/lib/api";
 
-export default function RecentSales() {
-  const recentSales = [
-    {
-      name: "Polo T-Shirt",
-      units: 1,
-      amount: "Rp 115.000",
-    },
-    {
-      name: "Baju",
-      units: 2,
-      amount: "Rp 215.000",
-    },
-    {
-      name: "Kas & Bank",
-      units: 3,
-      amount: "Rp 115.000",
-    },
-  ];
+type DataSales = {
+  productName: string;
+  totalQuantity: number;
+  totalRevenue: number;
+};
+
+export default function BestSales() {
+  const [range, setRange] = useState("");
+  const [dataSales, setDataSales] = useState<DataSales[]>([]);
+
+  useEffect(() => {
+    setRange(generateDateRangeQuery());
+    api
+      .get(`dashboards/top_products?from=${range}&filter=`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((res) => {
+        console.log(res.data);
+        setDataSales(res.data);
+      });
+  }, [range]);
   return (
     <Card className="shadow-sm border border-gray-200 sm:w-1/2 w-full mt-4 sm:mt-0">
       <CardHeader>
@@ -37,8 +46,8 @@ export default function RecentSales() {
       <CardContent>
         <ScrollArea className="h-75">
           <div className="space-y-2">
-            {[...recentSales]
-              .sort((a, b) => b.units - a.units)
+            {[...dataSales]
+              .sort((a, b) => b.totalQuantity - a.totalQuantity)
               .map((sale, index) => (
                 <div
                   key={index}
@@ -49,15 +58,15 @@ export default function RecentSales() {
                   </div>
                   <div className="flex-1">
                     <div className="text-sm font-medium text-gray-900">
-                      {sale.name}
+                      {sale.productName}
                     </div>
                     <div className="text-xs text-gray-500 flex items-center gap-1 mt-1">
                       <ShoppingBag size={12} />
-                      {sale.units} units
+                      {sale.totalQuantity} units
                     </div>
                   </div>
                   <div className="text-xs font-semibold text-green-600">
-                    {sale.amount}
+                    Rp {sale.totalRevenue.toLocaleString("id-ID")}
                   </div>
                 </div>
               ))}

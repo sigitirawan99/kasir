@@ -23,67 +23,140 @@ import {
   TrendingUp,
 } from "lucide-react";
 import DashboardCard from "../../components/dashboard/DashboardCard";
+import { useEffect, useState } from "react";
+import api from "@/lib/api";
+import { FormatDateRange } from "./FormatDateRange";
+import { generateDateRangeQuery } from "./GenerateDateRange";
 
-const data = [
-  { date: "1 Sep", price: 0 },
-  { date: "4 Sep", price: 0 },
-  { date: "7 Sep", price: 0 },
-  { date: "10 Sep", price: 0 },
-  { date: "13 Sep", price: 0 },
-  { date: "16 Sep", price: 0 },
-  { date: "19 Sep", price: 0 },
-  { date: "20 Sep", price: 0 },
-  { date: "21 Sep", price: 0 },
-  { date: "22 Sep", price: 50000 },
-  { date: "23 Sep", price: 150000 },
-  { date: "24 Sep", price: 220000 },
-  { date: "25 Sep", price: 180000 },
-  { date: "26 Sep", price: 80000 },
-  { date: "27 Sep", price: 20000 },
-  { date: "28 Sep", price: 5000 },
-  { date: "29 Sep", price: 0 },
-  { date: "30 Sep", price: 0 },
-];
+interface SalesDataItem {
+  date: string;
+  total: number;
+  count: number;
+}
 
-const dataCard = [
-  {
-    title: "Total Penjualan",
-    value: "115.000",
-    icon: HandCoins,
-    color: "text-green-600",
-    bgIconColor: "bg-green-100",
-    bgColor: "bg-green-50",
-  },
-  {
-    title: "Total Transaksi",
-    value: "1",
-    icon: ShoppingCart,
-    color: "text-blue-600",
-    bgIconColor: "bg-blue-100",
-    bgColor: "bg-blue-50",
-  },
-  {
-    title: "Rata-rata/Hari",
-    value: "115.000",
-    icon: TrendingUp,
-    color: "text-purple-600",
-    bgIconColor: "bg-purple-100",
-    bgColor: "bg-purple-50",
-  },
-];
+interface ChartDataItem {
+  date: string;
+  price: number;
+}
+
+interface DataCardItem {
+  title: string;
+  value: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  color: string;
+  bgIconColor: string;
+  bgColor: string;
+}
 
 export default function LineChartSales() {
+  const [range, setRange] = useState("");
+  const [chartData, setChartData] = useState<ChartDataItem[]>([]);
+  const [dataCard, setDataCard] = useState<DataCardItem[]>([
+    {
+      title: "Total Penjualan",
+      value: "0",
+      icon: HandCoins,
+      color: "text-green-600",
+      bgIconColor: "bg-green-100",
+      bgColor: "bg-green-50",
+    },
+    {
+      title: "Total Transaksi",
+      value: "0",
+      icon: ShoppingCart,
+      color: "text-blue-600",
+      bgIconColor: "bg-blue-100",
+      bgColor: "bg-blue-50",
+    },
+    {
+      title: "Rata-rata/Hari",
+      value: "0",
+      icon: TrendingUp,
+      color: "text-purple-600",
+      bgIconColor: "bg-purple-100",
+      bgColor: "bg-purple-50",
+    },
+  ]);
+
+  useEffect(() => {
+    setRange(generateDateRangeQuery());
+  }, []);
+
+  useEffect(() => {
+    if (!range) return;
+
+    api
+      .get<SalesDataItem[]>(
+        `dashboards/sales_amount_chart?from=${range}&filter=`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      )
+      .then((res) => {
+        const apiData = res.data;
+
+        const formattedChartData: ChartDataItem[] = apiData.map((item) => ({
+          date: new Date(item.date).getDate() + " Okt",
+          price: item.total,
+        }));
+
+        setChartData(formattedChartData);
+
+        const totalPenjualan = apiData.reduce(
+          (sum, item) => sum + item.total,
+          0
+        );
+        const totalTransaksi = apiData.reduce(
+          (sum, item) => sum + item.count,
+          0
+        );
+        const daysWithSales = apiData.filter((item) => item.total > 0).length;
+        const rataRata = daysWithSales > 0 ? totalPenjualan / daysWithSales : 0;
+
+        setDataCard([
+          {
+            title: "Total Penjualan",
+            value: totalPenjualan.toLocaleString("id-ID"),
+            icon: HandCoins,
+            color: "text-green-600",
+            bgIconColor: "bg-green-100",
+            bgColor: "bg-green-50",
+          },
+          {
+            title: "Total Transaksi",
+            value: totalTransaksi.toString(),
+            icon: ShoppingCart,
+            color: "text-blue-600",
+            bgIconColor: "bg-blue-100",
+            bgColor: "bg-blue-50",
+          },
+          {
+            title: "Rata-rata/Hari",
+            value: Math.round(rataRata).toLocaleString("id-ID"),
+            icon: TrendingUp,
+            color: "text-purple-600",
+            bgIconColor: "bg-purple-100",
+            bgColor: "bg-purple-50",
+          },
+        ]);
+      });
+  }, [range]);
+
+  const formatRange = FormatDateRange(range);
+
   return (
     <div className="w-full">
       <Card className="shadow-sm border border-gray-200">
-        <CardHeader className="">
+        <CardHeader>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-md font-semibold text-gray-900">
                 Penjualan Bulan Ini
               </CardTitle>
               <CardDescription className="text-sm text-gray-500 mt-1">
-                1 Sep 2025 - 30 Sep 2025
+                {formatRange}
               </CardDescription>
             </div>
             <button className="text-xs text-black flex items-center gap-2 border border-gray-300 px-3 py-2 rounded-md cursor-pointer font-medium shadow-xs hover:bg-gray-100">
@@ -91,30 +164,28 @@ export default function LineChartSales() {
               <SquareArrowOutUpRight size={15} />
             </button>
           </div>
-          <div>
-            <div className="grid sm:grid-cols-3 gap-4 mb-4">
-              {dataCard.map((metric, index) => {
-                const IconComponent = metric.icon;
-                return (
-                  <DashboardCard
-                    key={index}
-                    title={metric.title}
-                    value={metric.value}
-                    icon={<IconComponent />}
-                    iconBgColor={metric.bgIconColor}
-                    iconColor={metric.color}
-                    valueColor={metric.color}
-                    bgColor={metric.bgColor}
-                  />
-                );
-              })}
-            </div>
+          <div className="grid lg:grid-cols-3 sm:grid-cols-2 gap-4 mb-4">
+            {dataCard.map((data, index) => {
+              const IconComponent = data.icon;
+              return (
+                <DashboardCard
+                  key={index}
+                  title={data.title}
+                  value={data.value}
+                  icon={<IconComponent />}
+                  iconBgColor={data.bgIconColor}
+                  iconColor={data.color}
+                  valueColor={data.color}
+                  bgColor={data.bgColor}
+                />
+              );
+            })}
           </div>
         </CardHeader>
-        <CardContent className="">
-          <ResponsiveContainer width="100%" height={220}>
+        <CardContent className="-mt-8">
+          <ResponsiveContainer width="100%" height={250}>
             <LineChart
-              data={data}
+              data={chartData}
               margin={{ top: 0, right: 0, left: 0, bottom: 20 }}
             >
               <CartesianGrid
@@ -140,7 +211,7 @@ export default function LineChartSales() {
               />
               <Tooltip
                 formatter={(value) => [
-                  `Rp${value.toLocaleString("id-ID")}`,
+                  `Rp${(value as number).toLocaleString("id-ID")}`,
                   "Total",
                 ]}
                 labelFormatter={(label) => `${label}`}
@@ -152,7 +223,7 @@ export default function LineChartSales() {
                 }}
               />
               <Line
-                type="monotone"
+                type="linear"
                 dataKey="price"
                 stroke="#e76e50"
                 strokeWidth={2}

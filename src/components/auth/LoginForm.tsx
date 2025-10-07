@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
+import { Spinner } from "../ui/spinner";
 
 const LoginFormSchema = z.object({
   email: z.string().email("Masukan email yang valid"),
@@ -119,7 +120,14 @@ export const LoginForm = () => {
           disabled={loading}
           className="w-full cursor-pointer"
         >
-          {loading ? "Loading..." : "Masuk"}
+          {loading ? (
+            <div className="flex items-center justify-center gap-3">
+              <Spinner />
+              <p>Memuat...</p>
+            </div>
+          ) : (
+            "Masuk"
+          )}
         </Button>
       </form>
     </Form>

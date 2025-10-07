@@ -8,14 +8,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  BadgeCheck,
-  Bell,
-  CreditCard,
-  LogOut,
-  Menu,
-  Sparkles,
-} from "lucide-react";
+import { LogOut, Menu, RefreshCcw, Shield, Users } from "lucide-react";
 import SidebarContentComponent from "./SidebarContentComponent";
 import type { MobileSidebarProps } from "@/lib/sidebar";
 import {
@@ -33,10 +26,13 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useRouter } from "next/navigation";
 
 const MobileSidebar: React.FC<MobileSidebarProps> = React.memo(
   ({ dataActive, user }) => {
     const [open, setOpen] = React.useState<boolean>(false);
+
+    const { replace } = useRouter();
 
     return (
       <div className="flex justify-between px-3 items-center">
@@ -89,36 +85,32 @@ const MobileSidebar: React.FC<MobileSidebarProps> = React.memo(
                       </div>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem>
-                      <Sparkles />
-                      Upgrade to Pro
+                      <Users />
+                      Ganti Pengguna
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem>
-                      <BadgeCheck />
-                      Account
+                      <Shield />
+                      Keamanan
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      <CreditCard />
-                      Billing
+                      <RefreshCcw />
+                      Refresh
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Bell />
-                      Notifications
-                    </DropdownMenuItem>
+                    <DropdownMenuItem>Versi: 100.0.1</DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => {
                       localStorage.removeItem("token");
+                      replace("/sign-in");
                     }}
                   >
                     <LogOut />
-                    Log out
+                    Keluar
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

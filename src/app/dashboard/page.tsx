@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 import BarChartSales from "./BarChartSales";
 import LineChartSales from "./LineChartSales";
-import RecentSales from "./RecentSales";
 import Auth from "@/components/auth";
+import BestSales from "./BestSales";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -19,7 +19,7 @@ function DashboardPage() {
       </div>
       <div className="mt-4 sm:flex gap-4">
         <LineChartSales />
-        <RecentSales />
+        <BestSales />
       </div>
     </div>
   );

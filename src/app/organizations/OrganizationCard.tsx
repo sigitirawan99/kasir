@@ -15,6 +15,7 @@ import api from "@/lib/api";
 import { useOrganizationStore } from "../../components/organization/useOrganizationStore";
 import { CompanySelect } from "../../components/organization/CompanySelect";
 import { Organization } from "@/lib/types";
+import { Spinner } from "@/components/ui/spinner";
 
 export const OrganizationCard = () => {
   const { selectedCompany } = useOrganizationStore();
@@ -82,7 +83,14 @@ export const OrganizationCard = () => {
             disabled={!selectedCompany || loading}
             onClick={handleContinue}
           >
-            {loading ? "Loading..." : "Lanjutkan"}
+            {loading ? (
+              <div className="flex items-center justify-center gap-2">
+                <Spinner />
+                <p>Loading...</p>
+              </div>
+            ) : (
+              "Lanjutkan"
+            )}
           </Button>
         </CardFooter>
       </Card>
