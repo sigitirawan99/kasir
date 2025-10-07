@@ -1,4 +1,4 @@
-export function buildFilterParam(date: Date): string {
+export function convertDate(date: Date): string {
   const offsetMs: number = 7 * 60 * 60 * 1000;
 
   const startLocal = new Date(date);

@@ -21,7 +21,7 @@ import { useEffect, useState } from "react";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import { DatePicker } from "@/components/dashboard/DatePicker";
 import api from "@/lib/api";
-import { buildFilterParam } from "../../components/ConvertDate";
+import { convertDate } from "../../components/ConvertDate";
 
 interface SalesData {
   date: string;
@@ -45,7 +45,7 @@ export default function BarChartSales() {
   const [busiestHour, setBusiestHour] = useState<string>("-");
   const [averagePerTransaction, setAveragePerTransaction] = useState<number>(0);
 
-  const date = buildFilterParam(selectedDate!);
+  const date = convertDate(selectedDate!);
 
   const onDateChange = (selected: Date | undefined) => {
     setSelectedDate(selected);

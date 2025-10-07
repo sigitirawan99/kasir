@@ -22,11 +22,11 @@ import {
   SquareArrowOutUpRight,
   TrendingUp,
 } from "lucide-react";
-import DashboardCard from "../../components/dashboard/DashboardCard";
+import DashboardCard from "../../../components/dashboard/DashboardCard";
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
-import { FormatDateRange } from "./FormatDateRange";
-import { generateDateRangeQuery } from "./GenerateDateRange";
+import { FormatDateRange } from "../../../components/dashboard/FormatDateRange";
+import { generateDateRangeQuery } from "../../../components/dashboard/GenerateDateRange";
 
 interface SalesDataItem {
   date: string;

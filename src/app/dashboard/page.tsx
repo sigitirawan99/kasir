@@ -1,8 +1,8 @@
 import { Metadata } from "next";
-import BarChartSales from "./BarChartSales";
-import LineChartSales from "./LineChartSales";
+import BarChartSales from "./chart/BarChartSales";
+import LineChartSales from "./chart/LineChartSales";
 import Auth from "@/components/auth";
-import BestSales from "./BestSales";
+import BestSales from "./chart/BestSales";
 
 export const metadata: Metadata = {
   title: "Dashboard",

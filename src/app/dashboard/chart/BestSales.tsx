@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { SquareArrowOutUpRight } from "lucide-react";
 import { ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
-import { generateDateRangeQuery } from "./GenerateDateRange";
+import { generateDateRangeQuery } from "../../../components/dashboard/GenerateDateRange";
 import api from "@/lib/api";
 
 type DataSales = {
