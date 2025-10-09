@@ -18,10 +18,10 @@ import {
 } from "recharts";
 import { TrendingUp, ShoppingCart, Clock, HandCoins } from "lucide-react";
 import { useEffect, useState } from "react";
-import DashboardCard from "../../components/dashboard/DashboardCard";
 import { DatePicker } from "@/components/dashboard/DatePicker";
 import api from "@/lib/api";
-import { convertDate } from "../../components/ConvertDate";
+import { convertDate } from "@/components/ConvertDate";
+import DashboardCard from "@/components/dashboard/DashboardCard";
 
 interface SalesData {
   date: string;

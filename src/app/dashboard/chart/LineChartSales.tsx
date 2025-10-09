@@ -25,8 +25,8 @@ import {
 import DashboardCard from "../../../components/dashboard/DashboardCard";
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
-import { FormatDateRange } from "../../../components/dashboard/FormatDateRange";
 import { generateDateRangeQuery } from "../../../components/dashboard/GenerateDateRange";
+import { FormatDateRange } from "@/components/dashboard/FormatDateRange";
 
 interface SalesDataItem {
   date: string;
@@ -207,7 +207,6 @@ export default function LineChartSales() {
                 tickLine={false}
                 tick={{ fontSize: 12, fill: "#4A4A4A" }}
                 tickFormatter={(value) => `${value / 1000} rb`}
-                ticks={[0, 55000, 110000, 165000, 220000]}
               />
               <Tooltip
                 formatter={(value) => [

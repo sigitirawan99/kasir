@@ -22,7 +22,13 @@ export const OrganizationCard = () => {
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(false);
   const { push } = useRouter();
-  const token = localStorage.getItem("token");
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setToken(token);
+  }, []);
+
   const handleContinue = async () => {
     if (!selectedCompany) return;
     setLoading(true);
