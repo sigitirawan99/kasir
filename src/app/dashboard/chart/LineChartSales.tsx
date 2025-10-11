@@ -27,26 +27,7 @@ import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import { generateDateRangeQuery } from "../../../components/dashboard/GenerateDateRange";
 import { FormatDateRange } from "@/components/dashboard/FormatDateRange";
-
-interface SalesDataItem {
-  date: string;
-  total: number;
-  count: number;
-}
-
-interface ChartDataItem {
-  date: string;
-  price: number;
-}
-
-interface DataCardItem {
-  title: string;
-  value: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  color: string;
-  bgIconColor: string;
-  bgColor: string;
-}
+import { type SalesDataItem, ChartDataItem, DataCardItem } from "@/lib/types";
 
 export default function LineChartSales() {
   const [range, setRange] = useState("");
@@ -202,7 +183,6 @@ export default function LineChartSales() {
                 interval={2}
               />
               <YAxis
-                domain={[0, 250000]}
                 axisLine={false}
                 tickLine={false}
                 tick={{ fontSize: 12, fill: "#4A4A4A" }}

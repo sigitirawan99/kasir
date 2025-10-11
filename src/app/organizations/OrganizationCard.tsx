@@ -22,12 +22,6 @@ export const OrganizationCard = () => {
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(false);
   const { push } = useRouter();
-  const [token, setToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    setToken(token);
-  }, []);
 
   const handleContinue = async () => {
     if (!selectedCompany) return;
@@ -38,7 +32,7 @@ export const OrganizationCard = () => {
         { organizationId: selectedCompany },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
@@ -54,7 +48,7 @@ export const OrganizationCard = () => {
       try {
         const res = await api.get("/auth/organization/list", {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
 
@@ -64,7 +58,7 @@ export const OrganizationCard = () => {
       }
     };
     fetchOrganizations();
-  }, [token]);
+  }, []);
 
   return (
     <>

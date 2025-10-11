@@ -6,12 +6,7 @@ import { ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { generateDateRangeQuery } from "../../../components/dashboard/GenerateDateRange";
 import api from "@/lib/api";
-
-type DataSales = {
-  productName: string;
-  totalQuantity: number;
-  totalRevenue: number;
-};
+import { type DataSales } from "@/lib/types";
 
 export default function BestSales() {
   const [range, setRange] = useState("");
@@ -54,6 +49,9 @@ export default function BestSales() {
                   className="flex items-center gap-2 justify-between p-1 bg-gray-50 rounded-md hover:bg-gray-100"
                 >
                   <div className="w-10 h-10 bg-blue-200 rounded-md flex items-center justify-center">
+                    <div className="absolute -top-1 w-6 h-6 rounded-full bg-yellow-500 ml-8 flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">#1</span>
+                    </div>
                     <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
                   </div>
                   <div className="flex-1">

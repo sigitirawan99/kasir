@@ -22,17 +22,7 @@ import { DatePicker } from "@/components/dashboard/DatePicker";
 import api from "@/lib/api";
 import { convertDate } from "@/components/ConvertDate";
 import DashboardCard from "@/components/dashboard/DashboardCard";
-
-interface SalesData {
-  date: string;
-  total: number;
-  count: number;
-}
-
-interface ChartData {
-  time: string;
-  value: number;
-}
+import { type SalesData, ChartData } from "@/lib/types";
 
 export default function BarChartSales() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
@@ -204,7 +194,6 @@ export default function BarChartSales() {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12, fill: "#6B7280" }}
-                  domain={[0, 120000]}
                   tickFormatter={(value) => `${value / 1000} rb`}
                 />
                 <Bar dataKey="value" fill="#e76e50" radius={[4, 4, 0, 0]} />
