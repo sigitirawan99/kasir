@@ -1,8 +1,31 @@
-import { Metadata } from "next";
 import BarChartSales from "./chart/BarChartSales";
 import LineChartSales from "./chart/LineChartSales";
 import Auth from "@/components/auth";
 import BestSales from "./chart/BestSales";
+import { Funnel } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import Refresh from "./Refresh";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -11,10 +34,84 @@ export const metadata: Metadata = {
 
 function DashboardPage() {
   return (
-    <div className="p-4 h-full">
+    <div className="px-4 py-2 h-full">
       <Auth />
-      <h1 className="text-xl">Dashboard</h1>
-      <div className="mt-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Dashboard</h1>
+        <div className="flex items-center gap-2">
+          <Refresh />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="p-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="cursor-pointer w-9 h-9"
+                    >
+                      <Funnel />
+                    </Button>
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent className="w-74 p-4">
+                    <div className="grid gap-2">
+                      <div>
+                        <Label className="mb-1">Proyek</Label>
+                        <Select>
+                          <SelectTrigger className="w-full hover:bg-gray-50">
+                            <SelectValue placeholder="Pilih Proyek" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Fruits</SelectLabel>
+                              <SelectItem value="apple">Apple</SelectItem>
+                              <SelectItem value="banana">Banana</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="mb-1">Outlet</Label>
+                        <Select>
+                          <SelectTrigger className="w-full hover:bg-gray-50">
+                            <SelectValue placeholder="Pilih Outlet" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Fruits</SelectLabel>
+                              <SelectItem value="apple">Apple</SelectItem>
+                              <SelectItem value="banana">Banana</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="pt-2 flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          className="text-[12px] cursor-pointer"
+                          size="sm"
+                        >
+                          Reset
+                        </Button>
+                        <Button
+                          className="text-[12px] cursor-pointer"
+                          size="sm"
+                        >
+                          Terapkan
+                        </Button>
+                      </div>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Filter</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+      </div>
+      <div>
         <BarChartSales />
       </div>
       <div className="mt-4 sm:flex gap-4">

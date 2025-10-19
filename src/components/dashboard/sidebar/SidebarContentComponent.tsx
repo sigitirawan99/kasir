@@ -27,20 +27,20 @@ const SidebarContentComponent: React.FC<SidebarContentComponentProps> =
           <div className="flex items-center gap-4 bg-gray-100 border border-gray-200 rounded-md p-1 mt-2">
             <button
               onClick={() => setActiveButton("ERP")}
-              className={`text-sm w-1/2 py-[2px] font-medium cursor-pointer ${
+              className={`text-[12px] w-1/2 py-[2px] font-medium cursor-pointer  ${
                 activeButton === "ERP"
                   ? "bg-white border rounded-md shadow-sm"
-                  : ""
+                  : "text-gray-400"
               }`}
             >
               ERP
             </button>
             <button
               onClick={() => setActiveButton("Work")}
-              className={`text-sm w-1/2 py-[2px] font-medium cursor-pointer ${
+              className={`text-[12px] w-1/2 py-[2px] font-medium cursor-pointer ${
                 activeButton === "Work"
                   ? "bg-white border rounded-md shadow-sm"
-                  : ""
+                  : "text-gray-400"
               }`}
             >
               Workspace

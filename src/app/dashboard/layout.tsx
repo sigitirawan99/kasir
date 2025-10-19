@@ -1,5 +1,4 @@
 "use client";
-
 import * as React from "react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import Auth from "@/components/auth";
