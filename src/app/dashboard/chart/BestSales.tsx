@@ -29,7 +29,7 @@ export default function BestSales() {
     <Card className="shadow-sm border border-gray-200 sm:w-1/2 w-full mt-4 sm:mt-0">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-md font-semibold text-gray-900">
+          <CardTitle className="text-md text-gray-900">
             Produk Terlaris
           </CardTitle>
           <button className="text-xs text-black flex items-center gap-2 border border-gray-300 px-3 py-2 rounded-md cursor-pointer font-medium shadow-xs hover:bg-gray-100">

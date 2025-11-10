@@ -133,7 +133,7 @@ export default function LineChartSales() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-md font-semibold text-gray-900">
+              <CardTitle className="text-md text-gray-900">
                 Penjualan Bulan Ini
               </CardTitle>
               <CardDescription className="text-sm text-gray-500 mt-1">
@@ -179,13 +179,13 @@ export default function LineChartSales() {
                 dataKey="date"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 12, fill: "#4A4A4A" }}
-                interval={2}
+                tick={{ fontSize: 12, fill: "#64748B" }}
+                interval={1}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 12, fill: "#4A4A4A" }}
+                tick={{ fontSize: 12, fill: "#64748B" }}
                 tickFormatter={(value) => `${value / 1000} rb`}
               />
               <Tooltip

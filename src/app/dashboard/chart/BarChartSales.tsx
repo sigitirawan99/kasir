@@ -139,7 +139,7 @@ export default function BarChartSales() {
           />
           <DashboardCard
             title="Rata-rata/Jam"
-            value={`Rp ${averagePerHour.toLocaleString("id-ID")}`}
+            value={`Rp ${Math.round(averagePerHour).toLocaleString("id-ID")}`}
             icon={<TrendingUp />}
             iconBgColor="bg-purple-100"
             iconColor="text-purple-600"

@@ -37,7 +37,7 @@ function DashboardPage() {
     <div className="px-4 py-2 h-full">
       <Auth />
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Dashboard</h1>
+        <h1 className="text-xl font-medium">Dashboard</h1>
         <div className="flex items-center gap-2">
           <Refresh />
           <Tooltip>

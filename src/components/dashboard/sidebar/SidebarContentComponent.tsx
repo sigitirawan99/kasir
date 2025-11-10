@@ -6,12 +6,12 @@ import {
   SidebarFooter,
   SidebarHeader,
 } from "@/components/ui/sidebar";
-import { TeamSwitcher } from "@/components/dashboard/team-switcher";
 import { GalleryVerticalEnd } from "lucide-react";
-import { NavMain } from "../nav-main";
-import { NavUser } from "../nav-user";
 import type { SidebarContentComponentProps } from "@/lib/sidebar";
 import { sidebarData } from "./sidebarData";
+import { TeamSwitcher } from "../TeamSwitcher";
+import { NavMain } from "../NavMain";
+import { NavUser } from "../NavUser";
 
 const SidebarContentComponent: React.FC<SidebarContentComponentProps> =
   React.memo(({ dataActive, user }) => {
@@ -24,7 +24,7 @@ const SidebarContentComponent: React.FC<SidebarContentComponentProps> =
             logo={GalleryVerticalEnd}
             plan="Perusahaan"
           />
-          <div className="flex items-center gap-4 bg-gray-100 border border-gray-200 rounded-md p-1 mt-2">
+          <div className="md:flex items-center hidden gap-4 bg-gray-100 border border-gray-200 rounded-md p-1 mt-2">
             <button
               onClick={() => setActiveButton("ERP")}
               className={`text-[12px] w-1/2 py-[2px] font-medium cursor-pointer  ${
