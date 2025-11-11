@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,55 +9,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
-import api from "@/lib/api";
 import { useOrganizationStore } from "../../components/organization/useOrganizationStore";
 import { CompanySelect } from "../../components/organization/CompanySelect";
-import { Organization } from "@/lib/types";
 import { Spinner } from "@/components/ui/spinner";
+import {
+  useOrganizations,
+  useSetActiveOrganization,
+} from "@/hooks/useOrganization";
 
 export const OrganizationCard = () => {
   const { selectedCompany } = useOrganizationStore();
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [loading, setLoading] = useState(false);
-  const { push } = useRouter();
+  const { data: organizations = [], isLoading: isLoadingOrgs } =
+    useOrganizations();
+  const setActiveOrgMutation = useSetActiveOrganization();
 
-  const handleContinue = async () => {
+  const handleContinue = () => {
     if (!selectedCompany) return;
-    setLoading(true);
-    try {
-      const res = await api.post(
-        "/auth/organization/set-active",
-        { organizationId: selectedCompany },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      console.log(res);
-      push("/dashboard");
-    } catch (error) {
-      console.log(error);
-    }
+    setActiveOrgMutation.mutate(selectedCompany);
   };
-
-  useEffect(() => {
-    const fetchOrganizations = async () => {
-      try {
-        const res = await api.get("/auth/organization/list", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-
-        setOrganizations(res.data);
-      } catch (err) {
-        console.error("Gagal mengambil daftar organisasi:", err);
-      }
-    };
-    fetchOrganizations();
-  }, []);
 
   return (
     <>
@@ -80,10 +48,10 @@ export const OrganizationCard = () => {
           </Button>
           <Button
             className="cursor-pointer"
-            disabled={!selectedCompany || loading}
+            disabled={!selectedCompany || setActiveOrgMutation.isPending}
             onClick={handleContinue}
           >
-            {loading ? (
+            {setActiveOrgMutation.isPending ? (
               <div className="flex items-center justify-center gap-2">
                 <Spinner />
                 <p>Loading...</p>

@@ -3,28 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SquareArrowOutUpRight } from "lucide-react";
 import { ShoppingBag } from "lucide-react";
-import { useEffect, useState } from "react";
 import { generateDateRangeQuery } from "../../../components/dashboard/GenerateDateRange";
-import api from "@/lib/api";
-import { type DataSales } from "@/lib/types";
+import { formatCurrencyWithPrefix } from "@/lib/utils";
+import { useTopProducts } from "@/hooks/useDashboard";
 
 export default function BestSales() {
-  const [range, setRange] = useState("");
-  const [dataSales, setDataSales] = useState<DataSales[]>([]);
-
-  useEffect(() => {
-    setRange(generateDateRangeQuery());
-    api
-      .get(`dashboards/top_products?from=${range}&filter=`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
-      .then((res) => {
-        console.log(res.data);
-        setDataSales(res.data);
-      });
-  }, [range]);
+  const range = generateDateRangeQuery();
+  const { data: dataSales = [], isLoading } = useTopProducts(range);
   return (
     <Card className="shadow-sm border border-gray-200 sm:w-1/2 w-full mt-4 sm:mt-0">
       <CardHeader>
@@ -64,7 +49,7 @@ export default function BestSales() {
                     </div>
                   </div>
                   <div className="text-xs font-semibold text-green-600">
-                    Rp {sale.totalRevenue.toLocaleString("id-ID")}
+                    {formatCurrencyWithPrefix(sale.totalRevenue)}
                   </div>
                 </div>
               ))}

@@ -23,107 +23,91 @@ import {
   TrendingUp,
 } from "lucide-react";
 import DashboardCard from "../../../components/dashboard/DashboardCard";
-import { useEffect, useState } from "react";
-import api from "@/lib/api";
+import { useMemo } from "react";
 import { generateDateRangeQuery } from "../../../components/dashboard/GenerateDateRange";
 import { FormatDateRange } from "@/components/dashboard/FormatDateRange";
-import { type SalesDataItem, ChartDataItem, DataCardItem } from "@/lib/types";
+import { type ChartDataItem, DataCardItem } from "@/lib/types";
+import {
+  formatCurrency,
+  formatDateWithMonth,
+  formatChartTooltipCurrency,
+} from "@/lib/utils";
+import { useSalesAmountChart } from "@/hooks/useDashboard";
 
 export default function LineChartSales() {
-  const [range, setRange] = useState("");
-  const [chartData, setChartData] = useState<ChartDataItem[]>([]);
-  const [dataCard, setDataCard] = useState<DataCardItem[]>([
-    {
-      title: "Total Penjualan",
-      value: "0",
-      icon: HandCoins,
-      color: "text-green-600",
-      bgIconColor: "bg-green-100",
-      bgColor: "bg-green-50",
-    },
-    {
-      title: "Total Transaksi",
-      value: "0",
-      icon: ShoppingCart,
-      color: "text-blue-600",
-      bgIconColor: "bg-blue-100",
-      bgColor: "bg-blue-50",
-    },
-    {
-      title: "Rata-rata/Hari",
-      value: "0",
-      icon: TrendingUp,
-      color: "text-purple-600",
-      bgIconColor: "bg-purple-100",
-      bgColor: "bg-purple-50",
-    },
-  ]);
+  const range = generateDateRangeQuery();
+  const { data: apiData, isLoading } = useSalesAmountChart(range);
 
-  useEffect(() => {
-    setRange(generateDateRangeQuery());
-  }, []);
+  const chartData: ChartDataItem[] = useMemo(() => {
+    if (!apiData) return [];
+    return apiData.map((item) => ({
+      date: formatDateWithMonth(new Date(item.date)),
+      price: item.total,
+    }));
+  }, [apiData]);
 
-  useEffect(() => {
-    if (!range) return;
-
-    api
-      .get<SalesDataItem[]>(
-        `dashboards/sales_amount_chart?from=${range}&filter=`,
+  const dataCard: DataCardItem[] = useMemo(() => {
+    if (!apiData) {
+      return [
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      )
-      .then((res) => {
-        const apiData = res.data;
+          title: "Total Penjualan",
+          value: "0",
+          icon: HandCoins,
+          color: "text-green-600",
+          bgIconColor: "bg-green-100",
+          bgColor: "bg-green-50",
+        },
+        {
+          title: "Total Transaksi",
+          value: "0",
+          icon: ShoppingCart,
+          color: "text-blue-600",
+          bgIconColor: "bg-blue-100",
+          bgColor: "bg-blue-50",
+        },
+        {
+          title: "Rata-rata/Hari",
+          value: "0",
+          icon: TrendingUp,
+          color: "text-purple-600",
+          bgIconColor: "bg-purple-100",
+          bgColor: "bg-purple-50",
+        },
+      ];
+    }
 
-        const formattedChartData: ChartDataItem[] = apiData.map((item) => ({
-          date: new Date(item.date).getDate() + " Okt",
-          price: item.total,
-        }));
+    const totalPenjualan = apiData.reduce((sum, item) => sum + item.total, 0);
+    const totalTransaksi = apiData.reduce((sum, item) => sum + item.count, 0);
+    const daysWithSales = apiData.filter((item) => item.total > 0).length;
+    const rataRata = daysWithSales > 0 ? totalPenjualan / daysWithSales : 0;
 
-        setChartData(formattedChartData);
-
-        const totalPenjualan = apiData.reduce(
-          (sum, item) => sum + item.total,
-          0
-        );
-        const totalTransaksi = apiData.reduce(
-          (sum, item) => sum + item.count,
-          0
-        );
-        const daysWithSales = apiData.filter((item) => item.total > 0).length;
-        const rataRata = daysWithSales > 0 ? totalPenjualan / daysWithSales : 0;
-
-        setDataCard([
-          {
-            title: "Total Penjualan",
-            value: totalPenjualan.toLocaleString("id-ID"),
-            icon: HandCoins,
-            color: "text-green-600",
-            bgIconColor: "bg-green-100",
-            bgColor: "bg-green-50",
-          },
-          {
-            title: "Total Transaksi",
-            value: totalTransaksi.toString(),
-            icon: ShoppingCart,
-            color: "text-blue-600",
-            bgIconColor: "bg-blue-100",
-            bgColor: "bg-blue-50",
-          },
-          {
-            title: "Rata-rata/Hari",
-            value: Math.round(rataRata).toLocaleString("id-ID"),
-            icon: TrendingUp,
-            color: "text-purple-600",
-            bgIconColor: "bg-purple-100",
-            bgColor: "bg-purple-50",
-          },
-        ]);
-      });
-  }, [range]);
+    return [
+      {
+        title: "Total Penjualan",
+        value: formatCurrency(totalPenjualan),
+        icon: HandCoins,
+        color: "text-green-600",
+        bgIconColor: "bg-green-100",
+        bgColor: "bg-green-50",
+      },
+      {
+        title: "Total Transaksi",
+        value: totalTransaksi.toString(),
+        icon: ShoppingCart,
+        color: "text-blue-600",
+        bgIconColor: "bg-blue-100",
+        bgColor: "bg-blue-50",
+      },
+      {
+        title: "Rata-rata/Hari",
+        value: formatCurrency(Math.round(rataRata)),
+        icon: TrendingUp,
+        color: "text-purple-600",
+        bgIconColor: "bg-purple-100",
+        bgColor: "bg-purple-50",
+      },
+    ];
+  }, [apiData]);
 
   const formatRange = FormatDateRange(range);
 
@@ -189,10 +173,9 @@ export default function LineChartSales() {
                 tickFormatter={(value) => `${value / 1000} rb`}
               />
               <Tooltip
-                formatter={(value) => [
-                  `Rp${(value as number).toLocaleString("id-ID")}`,
-                  "Total",
-                ]}
+                formatter={(value) =>
+                  formatChartTooltipCurrency(value as number)
+                }
                 labelFormatter={(label) => `${label}`}
                 contentStyle={{
                   backgroundColor: "white",

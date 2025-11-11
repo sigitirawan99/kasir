@@ -9,14 +9,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import api from "@/lib/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { Spinner } from "../ui/spinner";
+import { useLogin } from "@/hooks/useAuth";
 
 const LoginFormSchema = z.object({
   email: z.string().email("Masukan email yang valid"),
@@ -26,8 +24,7 @@ const LoginFormSchema = z.object({
 type LoginFormSchema = z.infer<typeof LoginFormSchema>;
 
 export const LoginForm = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const loginMutation = useLogin();
 
   const form = useForm<LoginFormSchema>({
     defaultValues: {
@@ -38,26 +35,9 @@ export const LoginForm = () => {
   });
 
   const { handleSubmit, control } = form;
-  const { push } = useRouter();
 
   const onSubmit = handleSubmit((data) => {
-    setError(false);
-    setLoading(true);
-    api
-      .post("/auth/sign-in/email", data, {
-        fetchOptions: { credentials: "omit" },
-      })
-      .then((res) => {
-        const token = res.data.token;
-        localStorage.setItem("token", token);
-        push("/organizations");
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(true);
-        setLoading(false);
-        console.error(err);
-      });
+    loginMutation.mutate(data);
   });
 
   return (
@@ -110,17 +90,17 @@ export const LoginForm = () => {
             Lupa kata sandi?
           </p>
         </Link>
-        {error && (
+        {loginMutation.isError && (
           <p className="text-sm bg-red-50 rounded-md p-3 text-red-500">
             Username atau password salah
           </p>
         )}
         <Button
           type="submit"
-          disabled={loading}
+          disabled={loginMutation.isPending}
           className="w-full cursor-pointer"
         >
-          {loading ? (
+          {loginMutation.isPending ? (
             <div className="flex items-center justify-center gap-3">
               <Spinner />
               <p>Memuat...</p>

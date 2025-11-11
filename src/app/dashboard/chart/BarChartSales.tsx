@@ -17,86 +17,84 @@ import {
   CartesianGrid,
 } from "recharts";
 import { TrendingUp, ShoppingCart, Clock, HandCoins } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState, useMemo } from "react";
 import { DatePicker } from "@/components/dashboard/DatePicker";
-import api from "@/lib/api";
-import { convertDate } from "@/components/ConvertDate";
 import DashboardCard from "@/components/dashboard/DashboardCard";
-import { type SalesData, ChartData } from "@/lib/types";
+import { type ChartData } from "@/lib/types";
+import {
+  formatCurrencyWithPrefix,
+  formatDateLocale,
+  formatTimeLocale,
+  formatChartTooltipCurrency,
+} from "@/lib/utils";
+import { useSalesPerHour } from "@/hooks/useDashboard";
 
 export default function BarChartSales() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date()
   );
-  const [chartData, setChartData] = useState<ChartData[]>([]);
-  const [totalSales, setTotalSales] = useState<number>(0);
-  const [totalTransactions, setTotalTransactions] = useState<number>(0);
-  const [averagePerHour, setAveragePerHour] = useState<number>(0);
-  const [busiestHour, setBusiestHour] = useState<string>("-");
-  const [averagePerTransaction, setAveragePerTransaction] = useState<number>(0);
 
-  const date = convertDate(selectedDate!);
+  const { data: rawData, isLoading } = useSalesPerHour(selectedDate);
+
+  const chartData: ChartData[] = useMemo(() => {
+    if (!rawData || rawData.length === 0) return [];
+    return rawData.map((item) => {
+      const d = new Date(item.date);
+      const time = formatTimeLocale(d, {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      return { time, value: item.total };
+    });
+  }, [rawData]);
+
+  const {
+    totalSales,
+    totalTransactions,
+    averagePerHour,
+    busiestHour,
+    averagePerTransaction,
+  } = useMemo(() => {
+    if (!rawData || rawData.length === 0) {
+      return {
+        totalSales: 0,
+        totalTransactions: 0,
+        averagePerHour: 0,
+        busiestHour: "--:--",
+        averagePerTransaction: 0,
+      };
+    }
+
+    const totalSales = rawData.reduce((acc, curr) => acc + curr.total, 0);
+    const totalTransactions = rawData.reduce(
+      (acc, curr) => acc + curr.count,
+      0
+    );
+    const hoursActive = rawData.length;
+    const averagePerHour = totalSales / hoursActive;
+    const averagePerTransaction =
+      totalTransactions > 0 ? totalSales / totalTransactions : 0;
+
+    const busiest = rawData.reduce((prev, curr) =>
+      curr.total > prev.total ? curr : prev
+    );
+    const busiestTime = formatTimeLocale(new Date(busiest.date), {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    return {
+      totalSales,
+      totalTransactions,
+      averagePerHour,
+      busiestHour: busiestTime,
+      averagePerTransaction,
+    };
+  }, [rawData]);
 
   const onDateChange = (selected: Date | undefined) => {
     setSelectedDate(selected);
   };
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    api
-      .get(`dashboards/sales_amount_chart?filter=${date}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => {
-        const rawData: SalesData[] = res.data;
-
-        if (rawData.length === 0) {
-          setChartData([]);
-          setTotalSales(0);
-          setTotalTransactions(0);
-          setAveragePerHour(0);
-          setAveragePerTransaction(0);
-          setBusiestHour("--:--");
-          return;
-        }
-
-        const transformed: ChartData[] = rawData.map((item) => {
-          const d = new Date(item.date);
-          const time = d.toLocaleTimeString("id-ID", {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
-          return { time, value: item.total };
-        });
-
-        const totalSales = rawData.reduce((acc, curr) => acc + curr.total, 0);
-        const totalTransactions = rawData.reduce(
-          (acc, curr) => acc + curr.count,
-          0
-        );
-        const hoursActive = rawData.length;
-        const averagePerHour = totalSales / hoursActive;
-        const averagePerTransaction =
-          totalTransactions > 0 ? totalSales / totalTransactions : 0;
-
-        const busiest = rawData.reduce((prev, curr) =>
-          curr.total > prev.total ? curr : prev
-        );
-        const busiestTime = new Date(busiest.date).toLocaleTimeString("id-ID", {
-          hour: "2-digit",
-          minute: "2-digit",
-        });
-
-        setChartData(transformed);
-        setTotalSales(totalSales);
-        setTotalTransactions(totalTransactions);
-        setAveragePerHour(averagePerHour);
-        setAveragePerTransaction(averagePerTransaction);
-        setBusiestHour(busiestTime);
-      })
-      .catch((err) => console.error("Chart error:", err));
-  }, [date]);
 
   return (
     <Card className="bg-white shadow-sm">
@@ -105,11 +103,13 @@ export default function BarChartSales() {
           <div className="grid gap-1">
             <CardTitle>Penjualan Per Hari</CardTitle>
             <CardDescription>
-              {selectedDate?.toLocaleDateString("id-ID", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
+              {selectedDate
+                ? formatDateLocale(selectedDate, {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })
+                : ""}
             </CardDescription>
           </div>
           <DatePicker onDateChange={onDateChange} />
@@ -121,7 +121,7 @@ export default function BarChartSales() {
         <div className="grid md:grid-cols-4 sm:grid-cols-2 gap-4 mb-3">
           <DashboardCard
             title="Total Penjualan"
-            value={`Rp ${totalSales.toLocaleString("id-ID")}`}
+            value={formatCurrencyWithPrefix(totalSales)}
             icon={<HandCoins />}
             iconBgColor="bg-green-100"
             iconColor="text-green-600"
@@ -139,7 +139,7 @@ export default function BarChartSales() {
           />
           <DashboardCard
             title="Rata-rata/Jam"
-            value={`Rp ${Math.round(averagePerHour).toLocaleString("id-ID")}`}
+            value={formatCurrencyWithPrefix(Math.round(averagePerHour))}
             icon={<TrendingUp />}
             iconBgColor="bg-purple-100"
             iconColor="text-purple-600"
@@ -166,10 +166,9 @@ export default function BarChartSales() {
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
                 <Tooltip
-                  formatter={(value) => [
-                    `Rp${value.toLocaleString("id-ID")}`,
-                    "Total",
-                  ]}
+                  formatter={(value) =>
+                    formatChartTooltipCurrency(value as number)
+                  }
                   labelFormatter={(label) => `${label}`}
                   contentStyle={{
                     backgroundColor: "white",
@@ -206,8 +205,8 @@ export default function BarChartSales() {
       <div className="flex justify-between p-2 text-xs text-gray-700 bg-gray-100 w-full h-full rounded-b-lg -mb-4 border">
         {averagePerTransaction ? (
           <span className="flex items-center gap-2 text-gray-500">
-            <TrendingUp size={16} /> Rata-rata Rp{" "}
-            {averagePerTransaction.toLocaleString("id-ID")} per transaksi
+            <TrendingUp size={16} /> Rata-rata{" "}
+            {formatCurrencyWithPrefix(averagePerTransaction)} per transaksi
           </span>
         ) : (
           <span className="flex items-center gap-2 text-gray-500">

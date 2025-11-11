@@ -1,3 +1,5 @@
+import { getMonthName } from "@/lib/utils";
+
 export const FormatDateRange = (range: string): string => {
   if (!range.includes("&to=")) return "";
 
@@ -14,24 +16,6 @@ export const FormatDateRange = (range: string): string => {
     const month = getMonthName(date.getUTCMonth());
     const year = date.getUTCFullYear();
     return `${day} ${month} ${year}`;
-  };
-
-  const getMonthName = (monthIndex: number): string => {
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "Mei",
-      "Jun",
-      "Jul",
-      "Agu",
-      "Sep",
-      "Okt",
-      "Nov",
-      "Des",
-    ];
-    return months[monthIndex] ?? "";
   };
 
   return `${formatDate(from)} - ${formatDate(to)}`;
